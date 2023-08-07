@@ -17,7 +17,7 @@ You'll need one or more Fedora virtual machines: one system for installing osbui
 
 We'll refer to the system where osbuild runs as the "builder" system and the system where Fedora IoT will be installed as your "destination" system.
 
-## Install osbuild
+## Step 1: Install osbuild
 
 On your "builder" system, follow the [instructions](https://www.osbuild.org/guides/image-builder-on-premises/installation.html) for installing osbuild and osbuild-composer.
 
@@ -28,7 +28,7 @@ sudo usermod -a -G weldr <user>
 newgrp weldr
 ```
 
-## Create empty blueprint for ostree commit
+## Step 2: Create empty blueprint for ostree commit
 
 On your "builder" system, create an empty blueprint that can be used to create an ostree commit.
 
@@ -47,7 +47,7 @@ Push the blueprint with `composer-cli`:
 
 `composer-cli blueprints push minimal.toml`
 
-## Create base ostree commit
+## Step 3: Create base ostree commit
 
 Start the build process for the ostree commit; we're choosing the `iot-commit` artifact because we want to be able to easily access the resulting ostree repo on-disk and via HTTP:
 
@@ -66,7 +66,7 @@ python3 -m http.server
 
 Note the location of the `repo` directory on the disk, you will need this location when encapsulating the ostree commit into a container image.
 
-## Create blueprint for installer artifact
+## Step 4: Create blueprint for installer artifact
 
 Create a blueprint that you can use to create an installer artifact.  You should include some basic user customizations so that you can login to your Fedora IoT system later.
 
@@ -87,7 +87,7 @@ And push the blueprint with `composer-cli`
 
 `composer-cli blueprints push iso.toml`
 
-## Create installer artifact
+## Step 5: Create installer artifact
 
 Start the build process for the installer artifact; the ostree repo should be served via HTTP on port 8080 from the previous steps.
 
@@ -97,7 +97,7 @@ Wait for the build to complete and then fetch the ISO to be used for installatio
 
 `composer-cli compose image <uuid>`
 
-## Install Fedora IoT to separate VM/device
+## Step 6: Install Fedora IoT to separate VM/device
 
 Using the ISO you created in the previous steps, install Fedora IoT in a VM or on your "destination" system.
 
@@ -105,7 +105,7 @@ The Anaconda installer should walk you through the necessary steps; they will no
 
 Ensure that you are able to boot your "destination" system into Fedora IoT and successfully SSH to the IoT system.
 
-## Create/push ostree native container
+## Step 7: Create/push ostree native container
 
 On your "builder" system, create a new base image from the ostree commit using the `rpm-ostree` command.
 
@@ -122,7 +122,7 @@ podman push quay.io/<username>/fedora-iot-base:latest
 
 You should go to the settings page for your new container image on Quay.io and mark the repository as public.
 
-## Create customized Containerfile
+## Step 8: Create customized Containerfile
 
 Create a Containerfile that starts with your new base image and use `rpm-ostree install` to install a new package.  An example is provided below:
 
@@ -136,7 +136,7 @@ RUN rpm-ostree install strace && \
 
 You could create this Containerfile on your "builder" system or any other system where `podman` is installed.
 
-## Build/push customized container image
+## Step 9: Build/push customized container image
 
 With the Containerfile, you can now build and push a new container image.
 
@@ -147,7 +147,7 @@ podman push quay.io/<username>/fedora-iot-custom:latest
 
 You'll need to go to the settings page on Quay.io for the custom image you just pushed and mark the repository as public.
 
-## Rebase Fedora IoT system to container image
+## Step 10: Rebase Fedora IoT system to container image
 
 On your "destination" system where Fedora IoT has been installed, rebase the system to your new customized image.
 
@@ -155,7 +155,7 @@ On your "destination" system where Fedora IoT has been installed, rebase the sys
 
 When you reboot your "destination" system, you should be in a new deployment and the package that you had installed in your Containerfile should be available.
 
-## Enable automatic updates
+## Step 11: Enable automatic updates
 
 Let's enable automatic updates driven by `rpm-ostree` and watch what happens when we update the container image on the registry.
 
@@ -178,7 +178,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable rpm-ostreed-automatic.timer --now
 ```
 
-## Add configuration file to Containerfile
+## Step 12: Add configuration file to Containerfile
 
 We can embed configuration files (or any files really) as part of the customized container image. This streamlines the process of doing OS updates and configuration changes via the same mechanism.
 
@@ -211,7 +211,7 @@ Your directory structure should look like this:
 3 directories, 2 files
 ```
 
-## Build/push updated container image
+## Step 13: Build/push updated container image
 
 Now build and push the updated image; we'll use the same `:latest` tag so that the automatic update mechanism picks up the new container image.
 
@@ -220,7 +220,7 @@ podman build -t quay.io/<username>/fedora-iot-custom:latest -f Containerfile.upd
 podman push quay.io/<username>/fedora-iot-custom:latest
 ```
 
-## Observe available update
+## Step 14: Observe available update
 
 On the destination Fedora IoT system, you should be able to see the updated container image being fetched by the automatic update mechanism.  Or the update has already been fetched and staged.
 
