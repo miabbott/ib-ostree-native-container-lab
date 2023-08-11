@@ -58,7 +58,7 @@ Wait the necessary time for the build to complete; time will vary based on the s
 When the build has completed, fetch the tarball, explode it to disk, and serve it up via HTTP.  This might be best done in a separate terminal so as not to flood your working terminal with log messages.
 
 ```bash
-composer-cli composer image <uuid>
+composer-cli compose image <uuid>
 tar -xf <uuid>.tar
 cd repo
 python3 -m http.server
