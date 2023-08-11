@@ -55,6 +55,10 @@ Start the build process for the ostree commit; we're choosing the `iot-commit` a
 
 Wait the necessary time for the build to complete; time will vary based on the specs of your "builder" system.
 
+To watch the status of the compose use:
+
+`watch -n 15 composer-cli compose info <uuid>`
+
 When the build has completed, fetch the tarball, explode it to disk, and serve it up via HTTP.  This might be best done in a separate terminal so as not to flood your working terminal with log messages.
 
 ```bash
@@ -103,7 +107,10 @@ Start the build process for the installer artifact; the ostree repo should be se
 
 Wait for the build to complete and then fetch the ISO to be used for installation:
 
-`composer-cli compose image <uuid>`
+```bash
+watch -n 15 composer-cli compose info <uuid>
+composer-cli compose image <uuid>
+```
 
 ## Step 6: Install Fedora IoT to separate VM/device
 
