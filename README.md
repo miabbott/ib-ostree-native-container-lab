@@ -64,6 +64,14 @@ cd repo
 python3 -m http.server
 ```
 
+**HINT**: the `commit.tar` artifact should look simiar to this:
+
+```bash
+$ ls -lh 64cd0719-fd07-4b32-a116-0192cecdada3-commit.tar
+-rw-------. 1 core weldr 785M Jul 27 15:36 64cd0719-fd07-4b32-a116-0192cecdada3-commit.tar
+```
+
+
 Note the location of the `repo` directory on the disk, you will need this location when encapsulating the ostree commit into a container image.
 
 ## Step 4: Create blueprint for installer artifact
